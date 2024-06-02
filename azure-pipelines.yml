@@ -1,0 +1,142 @@
+from bs4 import BeautifulSoup
+from faker import Faker
+from tkinter import Label, Entry, Button
+import tkinter as tk
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import requests
+import random
+from requests.exceptions import RequestException, HTTPError
+from tkinter import Tk
+
+
+class RegistrationApp(tk.Frame):
+
+def load_config(self, url):
+    """
+    Lädt die Konfiguration von der bereitgestellten URL.
+
+    Args:
+        url (str): Die URL, von der die Konfiguration geladen werden soll.
+
+    Returns:
+        dict or None: Das Konfigurationswörterbuch oder None, wenn ein Fehler aufgetreten ist.
+    """
+    try:
+        # Senden einer GET-Anfrage an die URL
+        response = requests.get(url)
+        response.raise_for_status()  # Raises stored HTTPError, if one occurred.
+
+        # Parsen des Antworttexts mit BeautifulSoup
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Finden des Formulars im geparsten HTML
+        form = soup.find('form')
+
+        if form is not None:
+            # Finden aller Eingabefelder im Formular
+            fields = form.find_all('input')
+
+            # Erstellen eines Konfigurationswörterbuchs
+            field_config = {}
+
+            for field in fields:
+                # Extrahieren des Namens des Eingabefelds
+                field_name = field.get('name')
+
+                if field_name:
+                    # Generieren eines zufälligen Werts für das Eingabefeld
+                    field_config[field_name] = Faker().methodcaller('random_element')
+
+            return field_config
+        else:
+            print("Kein Formular in der bereitgestellten URL gefunden.")
+            return None
+    except RequestException as err:
+        print(f"OOps: Etwas anderes ist passiert: {err}")
+        return None
+    except HTTPError as http_err:  # Zugriff auf die HTTPError-Klasse
+        print(f"HTTP-Fehler aufgetreten: {http_err}")
+
+
+class RegistrationApp:
+    """
+    A class representing a Registration App.
+
+    Attributes:
+        visited_urls (set): A set to store visited URLs.
+
+    Methods:
+        add_url(url): Adds a URL to the visited_urls set.
+        has_visited(url): Checks if a URL has been visited.
+        extract_data(url): Extracts data from a given URL.
+        register(): Registers the user based on the provided URL.
+    """
+
+    def __init__(self):
+        self.visited_urls = set()
+
+    def add_url(self, url):
+        """
+        Adds a URL to the visited_urls set.
+
+        Args:
+            url (str): The URL to be added.
+
+        Returns:
+            None
+        """
+        self.visited_urls.add(url)
+
+    def has_visited(self, url):
+        """
+        Checks if a URL has been visited.
+
+        Args:
+            url (str): The URL to be checked.
+
+        Returns:
+            bool: True if the URL has been visited, False otherwise.
+        """
+        return url in self.visited_urls
+
+    def extract_data(self, url):
+        """
+        Extracts data from a given URL.
+
+        Args:
+            url (str): The URL to extract data from.
+
+        Returns:
+            None or str: The extracted data or None if an error occurred.
+        """
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raises stored HTTPError, if one occurred.
+        except RequestException as err:
+            print(f"OOps: Something Else Happened: {err}")
+            return None
+        except HTTPError as http_err:  # Access the HTTPError class
+            print(f"HTTP error occurred: {http_err}")
+            return None
+
+def register(self):
+        """
+        Registers the user based on the provided URL.
+
+        Returns:
+            None
+        """
+        url = self.url_entry.get()
+        self.load_config(url)
+        faker = Faker()  # Access the faker object
+
+def main():
+        root = tk.Tk()
+        app = RegistrationApp(root)
+        app.master.title("Registration App")  # Access the app object
+        app.mainloop()
+
+
+if __name__ == "__main__":
+    main()
